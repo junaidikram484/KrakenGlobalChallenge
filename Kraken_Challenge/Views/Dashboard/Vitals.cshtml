@@ -1,0 +1,116 @@
+﻿@model Kraken_Challenge.Models.ViewModels.VMVitals
+@{
+    ViewData["Title"] = "Vitals";
+}
+
+<link rel="icon" type="image/png" href="images/icons/favicon.ico" />
+
+<link href="~/VitalsFormAssets/vendor/animate/animate.css" rel="stylesheet" />
+<link href="~/VitalsFormAssets/vendor/css-hamburgers/hamburgers.css" rel="stylesheet" />
+<link href="~/VitalsFormAssets/vendor/select2/select2.css" rel="stylesheet" />
+<link href="~/VitalsFormAssets/css/util.css" rel="stylesheet" />
+<link href="~/VitalsFormAssets/css/main.css" rel="stylesheet" />
+<style>
+    .custom_adjustment {
+        width: 60%;
+        margin-top: 10vh;
+    }
+
+    .error {
+        color: red;
+    }
+</style>
+
+<div class="limiter">
+    <div class="container-login100">
+        <div class="wrap-login100">
+            <form id="vitals_form" class="login100-form validate-form">
+                <span class="login100-form-title">
+                    Add Vitals
+                </span>
+                <div class="wrap-input100 validate-input" data-validate="Valid email is required: ex@abc.xyz">
+                    <label class="label">Tempreture<span class="error">*</span></label>
+                    <input type="text" class="form-control" id="txt_temp" name="Tempreture" />
+                </div>
+
+                <div class="wrap-input100 validate-input" data-validate="Password is required">
+                    <label class="label">Heart Rate<span class="error">*</span></label>
+                    <input type="text" class="form-control" id="txt_heart" name="HeartRate" />
+                </div>
+                <div class="wrap-input100 validate-input" data-validate="Valid email is required: ex@abc.xyz">
+                    <label class="label">Business Unit ID<span class="error">*</span></label>
+                    <input type="text" class="form-control" id="txt_businessunitid" name="BusinessUnitId" />
+                </div>
+                <div class="wrap-input100 validate-input" data-validate="Valid email is required: ex@abc.xyz">
+                    <label class="label">Device ID<span class="error">*</span></label>
+                    <input type="text" class="form-control" id="txt_deviceid" name="DeviceId" />
+                </div>
+
+                <div class="container-login100-form-btn">
+                    <button class="login100-form-btn" id="vitals_form_submit">
+                        Submit
+                    </button>
+                    <div class="btn btn-sm">
+                        <a href="/Dashboard/DisplayVitals">Show Vitals</a>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+<script>
+    $(function () {
+        $('#vitals_form').validate({ // initialize the plugin
+            ignore: "",
+            rules: {
+                Tempreture: {
+                    required: true,
+                    number: true
+                },
+                HeartRate: {
+                    required: true,
+                    number: true
+                },
+            }
+        });
+    })
+    $('body').on('click', '#vitals_form_submit', function (e) {
+        e.preventDefault();
+        if ($('#vitals_form').valid()) {
+            Swal.fire({
+                title: "Submitting...",
+                text: "Please wait",
+                imageUrl: "images/ajaxloader.gif",
+                showConfirmButton: false,
+                allowOutsideClick: false
+            });
+            var form = $('#vitals_form').serialize()
+            $.ajax({
+                type: "POST",
+                url: "/Dashboard/InsertVitals",
+                data: form,
+                dataType: 'json',
+                contentType: 'application/x-www-form-urlencoded; charset=UTF-8',
+                success: function (data) {
+                    console.log(data);
+                    if (data.isSuccess == true) {
+                        alertDialogue(data.message, "success");
+                        window.location.href = "/Dashboard/DisplayVitals"
+                    }
+                    else {
+                        alertDialogue(data.message, "error");
+                    }
+                }
+            });
+        }
+    })
+
+    function alertDialogue(message, icon) {
+        Swal.fire({
+            icon: icon,
+            title: message,
+            showConfirmButton: false,
+            timer: 2500
+        })
+    }
+</script>

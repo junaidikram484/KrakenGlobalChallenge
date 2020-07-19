@@ -1,0 +1,153 @@
+﻿
+@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>Login</title>
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="~/assets/css/bootstrap.min.css">
+
+    <!-- Fontawesome CSS -->
+    <link rel="stylesheet" href="~/assets/plugins/fontawesome/css/fontawesome.min.css">
+    <link rel="stylesheet" href="~/assets/plugins/fontawesome/css/all.min.css">
+
+    <!-- Main CSS -->
+    <link rel="stylesheet" href="~/assets/css/style.css">
+</head>
+<body class="account-page">
+    <!-- Main Wrapper -->
+    <div class="main-wrapper">
+        <!-- Page Content -->
+        <div class="content">
+            <div class="container-fluid">
+
+                <div class="row">
+                    <div class="col-md-8 offset-md-2">
+
+                        <!-- Login Tab Content -->
+                        <div class="account-content">
+                            <div class="row align-items-center justify-content-center">
+                                <div class="col-md-12 col-lg-6 login-right">
+                                    <div class="login-header">
+                                        <h3>Login</h3>
+                                        <h3 class="text-danger">@ViewBag.LoginError</h3>
+                                    </div>
+                                    <form id="login_form">
+                                        <div class="form-group">
+                                            <label class="label">Email</label>
+                                            <input type="email" class="form-control" id="txt_email" name="Email" />
+                                        </div>
+                                        <div class="form-group">
+                                            <label class="label">Password</label>
+                                            <input type="password" class="form-control" id="txt_password" name="Password" />
+                                        </div>
+                                        <button class="btn btn-primary btn-block btn-lg login-btn" id="login_form_submit" type="submit">Login</button>
+                                        <div class="login-or">
+                                            <span class="or-line"></span>
+                                            <span class="span-or">or</span>
+                                        </div>
+                                        <div class="text-center dont-have">Don’t have an account? <a href="/Account/Register">Register</a></div>
+                                    </form>
+
+                                </div>
+                            </div>
+                        </div>
+                        <!-- /Login Tab Content -->
+
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- /Page Content -->
+    </div>
+    <!-- /Main Wrapper -->
+    <!-- jQuery -->
+    <script src="~/assets/js/jquery.min.js"></script>
+
+    <!-- Bootstrap Core JS -->
+    <script src="~/assets/js/popper.min.js"></script>
+    <script src="~/assets/js/bootstrap.min.js"></script>
+
+    <!-- Custom JS -->
+    <script src="~/assets/js/script.js"></script>
+    <script src="~/lib/jquery-validation/dist/jquery.validate.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@9"></script>
+    <script>
+        $(function () {
+
+            $('#login_form').validate({ // initialize the plugin
+                ignore: "",
+                rules: {
+                    Email: {
+                        required: true,
+                        email: true
+                    },
+                    Password: {
+                        required: true,
+                    },
+                }
+            });
+        })
+        $('body').on('click', '#login_form_submit', function (e) {
+            e.preventDefault();
+            var current = $(this);
+            if ($('#login_form').valid()) {
+                current.prop("disabled", true);
+                current.html(
+                    `<span class="spinner-border spinner-border-md" role="status" aria-hidden="true"></span> Loading...`
+                );
+                var form = $('#login_form').serialize();
+                var email = $('#login_form').find('input[name="Email"]').val();
+                var password = $('#login_form').find('input[name="Password"]').val()
+//                var settings = {
+//  "url": "https://infinitysmartapi-dev.azurewebsites.net/api/auth",
+//  "method": "GET",
+//  "timeout": 0,
+//  "headers": {
+//    "Authorization": "Bearer 325221",
+//    "Content-Type": "application/json",
+//    "Cookie": "ARRAffinity=77923eb3cba41b02cb57fb7c7549c6da369e56728e04d1ae644cb7874172f97c"
+//  },
+//  "data": JSON.stringify({"username":"user@domain.com","password":"@@T3stP@@ssw0Rd!"}),
+//};
+
+//$.ajax(settings).done(function (response) {
+//  console.log(response);
+//});
+                $.ajax({
+                    type: "POST",
+                    url: "/Account/Login",
+                    data: { username: email, password: password },//form,
+                    dataType: 'json',
+                    contentType: 'application/x-www-form-urlencoded; charset=UTF-8',
+                    success: function (data) {
+                        console.log(data);
+                        if (data.isSuccess == true) {
+                            window.location.href = "/Dashboard/DisplayVitals";
+                        }
+                        else {
+                            current.prop("disabled", false);
+                            current.html('Login');
+                            alertDialogue(data.message, "error");
+                        }
+                    }
+                });
+            }
+        })
+
+        function alertDialogue(message, icon) {
+            Swal.fire({
+                icon: icon,
+                title: message,
+                showConfirmButton: false,
+                timer: 2500
+            })
+        }
+    </script>
+</body>
+</html>
